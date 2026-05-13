@@ -69,10 +69,45 @@ jobs:
           EOF
           } 2>&1 | tee .logs/deploy-server.log
 
+      - name: Collect remote diagnostics
+        if: always()
+        shell: bash
+        run: |
+          set -eo pipefail
+          mkdir -p .logs
+          {
+            ssh -o ConnectTimeout=20 -o ServerAliveInterval=30 -o ServerAliveCountMax=2 "${DEPLOY_USER}@${DEPLOY_HOST}" "bash -se" <<EOF
+          set -euxo pipefail
+          echo "== pwd =="
+          pwd
+          echo "== deploy dir =="
+          ls -la '${DEPLOY_PATH}' || true
+          echo "== repo dir =="
+          ls -la '${DEPLOY_PATH}/repo' || true
+          echo "== docker ps =="
+          docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}' || true
+          echo "== listening ports =="
+          ss -ltnp | grep -E ':(80|443|3010|8080|8081|8000)\\b' || true
+          echo "== nginx summary =="
+          sudo nginx -T 2>/dev/null | grep -nE 'battery\\.scdc\\.cloud|scdc\\.cloud|server_name|listen 80|listen 443' || true
+          echo "== local checks =="
+          curl -k -I --max-time 5 -H 'Host: battery.scdc.cloud' https://127.0.0.1 || true
+          curl -I --max-time 5 http://127.0.0.1:3010 || true
+          EOF
+          } 2>&1 | tee .logs/remote-diagnostics.log
+
       - name: Upload deploy log
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: deploy-server-log
           path: .logs/deploy-server.log
+          if-no-files-found: ignore
+
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-remote-diagnostics
+          path: .logs/remote-diagnostics.log
           if-no-files-found: ignore
