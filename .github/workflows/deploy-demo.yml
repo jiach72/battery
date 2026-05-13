@@ -111,3 +111,19 @@ jobs:
           name: deploy-remote-diagnostics
           path: .logs/remote-diagnostics.log
           if-no-files-found: ignore
+
+      - name: Publish summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo '## Deploy log'
+            echo '```text'
+            tail -n 200 .logs/deploy-server.log 2>/dev/null || true
+            echo '```'
+            echo
+            echo '## Remote diagnostics'
+            echo '```text'
+            tail -n 200 .logs/remote-diagnostics.log 2>/dev/null || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
