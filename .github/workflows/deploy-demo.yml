@@ -39,7 +39,7 @@ jobs:
 
       - name: Prepare remote directories
         run: |
-          ssh "${DEPLOY_USER}@${DEPLOY_HOST}" "mkdir -p '${DEPLOY_PATH}/repo' '${DEPLOY_PATH}'"
+          ssh "${DEPLOY_USER}@${DEPLOY_HOST}" "sudo mkdir -p '${DEPLOY_PATH}/repo' && sudo chown -R '${DEPLOY_USER}:${DEPLOY_USER}' '${DEPLOY_PATH}'"
 
       - name: Sync source tree
         run: |

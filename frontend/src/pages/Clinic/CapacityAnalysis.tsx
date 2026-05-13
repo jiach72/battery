@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { Button } from 'antd';
 import PredictLineChart from '../../charts/PredictLineChart';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { fetchAssessmentList } from '../../store/slices/clinicSlice';

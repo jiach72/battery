@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
-import { Button, Tabs } from 'antd';
+import { Tabs } from 'antd';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { fetchRealtimeClusters } from '../../store/slices/dashboardSlice';
 import RealtimeCurveChart from '../../charts/RealtimeCurveChart';
@@ -24,11 +24,6 @@ export default function RealtimeDetail() {
   }, [dispatch, selectedStation]);
 
   const retry = () => dispatch(fetchRealtimeClusters(selectedStation));
-
-  if (error) {
-    return <PageEmpty description={error} actionText="重试" onAction={retry} />;
-  }
-
   const hasRealData = realtimeClusters && realtimeClusters.length > 0 && realtimeClusters[0].cells?.length > 0;
 
   const { xData, voltage, current, soc } = useMemo(() => {
@@ -69,6 +64,10 @@ export default function RealtimeDetail() {
   const heatmapYLabels = hasRealData
     ? realtimeClusters.map((c) => `簇${c.clusterNo}`)
     : FALLBACK_CLUSTER_LABELS;
+
+  if (error) {
+    return <PageEmpty description={error} actionText="重试" onAction={retry} />;
+  }
 
   return (
     <div className="space-y-4">

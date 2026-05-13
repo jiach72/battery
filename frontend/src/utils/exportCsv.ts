@@ -1,4 +1,4 @@
-export function exportCsv<T extends Record<string, any>>(
+export function exportCsv<T extends object>(
   data: T[],
   columns: { key: keyof T; title: string }[],
   filename: string
@@ -6,7 +6,7 @@ export function exportCsv<T extends Record<string, any>>(
   const header = columns.map(c => c.title).join(',');
   const rows = data.map(row => 
     columns.map(c => {
-      const val = row[c.key];
+      const val = (row as Record<string, unknown>)[String(c.key)];
       if (typeof val === 'string' && val.includes(',')) {
         return `"${val}"`;
       }

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { hexToRgba } from '../styles/theme';
 
@@ -77,16 +77,8 @@ export default function CellHeatmapGrid({
   const computedMin = min ?? Math.min(...cells.map(c => c.value));
   const computedMax = max ?? Math.max(...cells.map(c => c.value));
 
-  const rows = Math.ceil(cells.length / cols);
-
   /** 用于 tooltip 的悬停状态 */
   const [hoveredCell, setHoveredCell] = React.useState<string | null>(null);
-
-  const cellSize = useMemo(() => {
-    // 根据列数自动计算格子大小，保持方形
-    const maxWidth = 100 / cols;
-    return Math.min(maxWidth, 8); // 最大 8% 宽度
-  }, [cols]);
 
   return (
     <div className="w-full" style={{ height: height ?? 'auto' }}>

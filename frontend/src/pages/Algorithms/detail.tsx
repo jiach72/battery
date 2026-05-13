@@ -3,7 +3,7 @@ import { Button, Tag } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 import ConsolePageHeader from '../../components/console/ConsolePageHeader';
 import ConsolePanel from '../../components/console/ConsolePanel';
-import { algorithms, getAlgorithm } from './catalog';
+import { getAlgorithm } from './catalog';
 
 export default function AlgorithmDetailPage() {
   const navigate = useNavigate();

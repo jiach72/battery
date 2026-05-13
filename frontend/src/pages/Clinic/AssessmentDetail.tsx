@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Select } from 'antd';
+import { Select } from 'antd';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { fetchEndpointAnalysis } from '../../store/slices/clinicSlice';
 import MultiAxisLineChart from '../../charts/MultiAxisLineChart';

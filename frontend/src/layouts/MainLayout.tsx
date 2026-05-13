@@ -14,7 +14,7 @@ import {
   UserOutlined,
   ExperimentOutlined,
 } from '@ant-design/icons';
-import { Outlet, useLocation, useNavigate, Link } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../hooks/useTheme';
 import { useAppDispatch, useAppSelector } from '../store/hooks';

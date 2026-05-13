@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Table, Select, Alert } from 'antd';
+import { Table, Select, Alert } from 'antd';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { fetchAnalogs } from '../../store/slices/deviceSlice';
 import ConsoleMetricTile from '../../components/console/ConsoleMetricTile';
@@ -7,8 +7,6 @@ import ConsolePageHeader from '../../components/console/ConsolePageHeader';
 import ConsolePanel from '../../components/console/ConsolePanel';
 import PageEmpty from '../../components/PageEmpty';
 import type { Analog } from '../../types/analog';
-
-const stationOptions = [{ value: 'station-north-01', label: '北区 1 号储能站' }];
 
 const analogTypeMeta: Record<Analog['dataType'], { label: string; dotClassName: string }> = {
   voltage: { label: '电压', dotClassName: 'console-status-pill__dot--accent' },

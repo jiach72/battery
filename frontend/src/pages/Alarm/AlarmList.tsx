@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Table, Button, Select, message, Modal, Input, Checkbox } from 'antd';
+import { Table, Button, Select, message, Modal, Input } from 'antd';
 import { DownloadOutlined } from '@ant-design/icons';
 import RiskBadge from '../../components/RiskBadge';
 import DateRangeFilter from '../../components/DateRangeFilter';
@@ -50,16 +50,6 @@ export default function AlarmList() {
   if (error) {
     return <PageEmpty description={error} actionText="重试" onAction={loadEvents} />;
   }
-
-  const handleAcknowledge = async (eventId: string | number) => {
-    try {
-      await dispatch(acknowledgeEvent(eventId)).unwrap();
-      message.success('告警已确认');
-      loadEvents();
-    } catch {
-      message.error('确认失败');
-    }
-  };
 
   const handleResolve = async (eventId: string | number) => {
     try {
