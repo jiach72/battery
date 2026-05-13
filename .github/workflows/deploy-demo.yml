@@ -57,5 +57,22 @@ jobs:
             ./ "${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}/repo/"
 
       - name: Deploy on server
+        shell: bash
         run: |
-          ssh "${DEPLOY_USER}@${DEPLOY_HOST}" "REPO_DIR='${DEPLOY_PATH}/repo' DEPLOY_DIR='${DEPLOY_PATH}' bash '${DEPLOY_PATH}/repo/deploy/demo-deploy.sh'"
+          set -eo pipefail
+          mkdir -p .logs
+          {
+            ssh -o ConnectTimeout=20 -o ServerAliveInterval=30 -o ServerAliveCountMax=2 "${DEPLOY_USER}@${DEPLOY_HOST}" "bash -se" <<EOF
+          set -euxo pipefail
+          cd '${DEPLOY_PATH}/repo'
+          REPO_DIR='${DEPLOY_PATH}/repo' DEPLOY_DIR='${DEPLOY_PATH}' bash -x deploy/demo-deploy.sh
+EOF
+          } 2>&1 | tee .logs/deploy-server.log
+
+      - name: Upload deploy log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-server-log
+          path: .logs/deploy-server.log
+          if-no-files-found: ignore
