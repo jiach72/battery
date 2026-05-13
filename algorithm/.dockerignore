@@ -1,0 +1,9 @@
+.git
+.idea
+*.md
+__pycache__/
+*.pyc
+.env
+trained_models/
+*.pkl
+*.pt

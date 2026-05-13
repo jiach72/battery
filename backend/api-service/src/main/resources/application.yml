@@ -1,0 +1,76 @@
+server:
+  port: 8081
+
+spring:
+  datasource:
+    # 网络定位信息（非敏感）可保留回退值，密码类必须由环境变量注入
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/battery_platform?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai}
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+
+  neo4j:
+    uri: ${SPRING_NEO4J_URI:bolt://localhost:7687}
+    authentication:
+      username: ${SPRING_NEO4J_USERNAME:neo4j}
+      password: ${SPRING_NEO4J_PASSWORD}
+
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: battery-platform
+      auto-offset-reset: earliest
+
+influxdb:
+  url: ${INFLUXDB_URL:http://localhost:8086}
+  token: ${INFLUXDB_TOKEN}
+  org: ${INFLUXDB_ORG:battery}
+  bucket: ${INFLUXDB_BUCKET:battery_measure}
+
+algorithm:
+  engine:
+    url: ${ALGORITHM_ENGINE_URL:http://algorithm:8000}
+    api-key: ${ALGORITHM_ENGINE_API_KEY:}
+
+auth:
+  demo:
+    enabled: ${AUTH_DEMO_ENABLED:false}
+    username: ${AUTH_DEMO_USERNAME:}
+    password: ${AUTH_DEMO_PASSWORD:}
+
+demo-data:
+  enabled: ${DEMO_DATA_ENABLED:false}
+
+websocket:
+  allowed-origins: ${WEBSOCKET_ALLOWED_ORIGINS:}
+
+jwt:
+  # 必须是256位以上随机字符串，绝不允许使用默认值
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION:86400000}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
+
+logging:
+  level:
+    com.battery: INFO

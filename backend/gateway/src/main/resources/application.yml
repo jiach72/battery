@@ -1,0 +1,30 @@
+server:
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "${GATEWAY_CORS_ORIGINS:}"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+
+gateway:
+  routes:
+    api-service-uri: ${API_SERVICE_URI:http://api-service:8081}
+    algorithm-service-uri: ${ALGORITHM_SERVICE_URI:http://algorithm:8000}
+
+jwt:
+  secret: ${JWT_SECRET}
+
+logging:
+  level:
+    com.battery: INFO
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

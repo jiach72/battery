@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Preview Light Theme</title>
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const next = params.get('next') || '/dashboard';
+      localStorage.setItem('theme', 'light');
+      localStorage.setItem('token', 'demo-token');
+      localStorage.setItem('refreshToken', 'demo-refresh-token');
+      window.location.replace(next);
+    </script>
+  </head>
+  <body></body>
+</html>

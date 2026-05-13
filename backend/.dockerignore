@@ -1,0 +1,10 @@
+target/
+.git
+.idea
+*.md
+node_modules/
+.env
+__pycache__/
+*.pyc
+.vite/
+dist/
