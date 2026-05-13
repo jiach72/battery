@@ -119,11 +119,11 @@ jobs:
           {
             echo '## Deploy log'
             echo '```text'
-            tail -n 200 .logs/deploy-server.log 2>/dev/null || true
+            sed -n '1,240p' .logs/deploy-server.log 2>/dev/null || true
             echo '```'
             echo
             echo '## Remote diagnostics'
             echo '```text'
-            tail -n 200 .logs/remote-diagnostics.log 2>/dev/null || true
+            sed -n '1,240p' .logs/remote-diagnostics.log 2>/dev/null || true
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
