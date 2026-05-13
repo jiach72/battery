@@ -1,0 +1,57 @@
+name: Deploy Demo
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'algorithm/**'
+      - 'backend/**'
+      - 'deploy/**'
+      - 'docker/**'
+      - 'frontend/**'
+      - '.github/workflows/deploy-demo.yml'
+
+concurrency:
+  group: battery-demo-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+      DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+      DEPLOY_PATH: /opt/battery-demo
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare SSH known_hosts
+        run: |
+          install -d -m 700 ~/.ssh
+          ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
+
+      - name: Load SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
+
+      - name: Sync source tree
+        run: |
+          rsync -az --delete \
+            --exclude '.git/' \
+            --exclude 'frontend/node_modules/' \
+            --exclude 'frontend/dist/' \
+            --exclude 'backend/**/target/' \
+            --exclude 'algorithm/__pycache__/' \
+            --exclude 'algorithm/.pytest_cache/' \
+            --exclude '.tmp-*' \
+            --exclude 'output/' \
+            --exclude 'scratch/' \
+            --exclude 'tmp/' \
+            ./ "${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}/repo/"
+
+      - name: Deploy on server
+        run: |
+          ssh "${DEPLOY_USER}@${DEPLOY_HOST}" "REPO_DIR='${DEPLOY_PATH}/repo' DEPLOY_DIR='${DEPLOY_PATH}' bash '${DEPLOY_PATH}/repo/deploy/demo-deploy.sh'"

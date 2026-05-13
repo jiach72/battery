@@ -1,0 +1,48 @@
+# Battery Platform — .gitignore
+
+# ==== 环境变量（绝对禁止提交）====
+.env
+.env.local
+.env.*.local
+
+# ==== Java 构建产物 ====
+target/
+*.jar
+*.war
+*.class
+
+# ==== Node / 前端 ====
+node_modules/
+dist/
+.vite/
+
+# ==== IDE ====
+.idea/
+*.iml
+.vscode/
+*.suo
+*.user
+
+# ==== Codex / workspace junk ====
+.claude/
+.codebuddy/
+.mcp.json
+.tmp-*
+battery-deploy.tar.gz
+
+# ==== 操作系统 ====
+.DS_Store
+Thumbs.db
+
+# ==== 日志 ====
+*.log
+logs/
+
+# ==== MemPalace ====
+mempalace.yaml
+entities.json
+
+# ==== Test coverage ====
+coverage/
+htmlcov/
+.pycoverage/

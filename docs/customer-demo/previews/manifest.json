@@ -1,0 +1,78 @@
+[
+  {
+    "name": "light-dashboard.png",
+    "route": "/dashboard",
+    "waitFor": "站级总览"
+  },
+  {
+    "name": "light-realtime.png",
+    "route": "/dashboard/realtime",
+    "waitFor": "实时工况监测"
+  },
+  {
+    "name": "light-clinic-overview.png",
+    "route": "/clinic/overview",
+    "waitFor": "运行状态评估"
+  },
+  {
+    "name": "light-clinic-detail.png",
+    "route": "/clinic/detail",
+    "waitFor": "单体下钻分析"
+  },
+  {
+    "name": "light-clinic-capacity.png",
+    "route": "/clinic/capacity",
+    "waitFor": "容量分析"
+  },
+  {
+    "name": "light-clinic-mileage.png",
+    "route": "/clinic/mileage",
+    "waitFor": "里程分析"
+  },
+  {
+    "name": "light-clinic-safety.png",
+    "route": "/clinic/safety",
+    "waitFor": "安全评估"
+  },
+  {
+    "name": "light-clinic-efficiency.png",
+    "route": "/clinic/efficiency",
+    "waitFor": "效率分析"
+  },
+  {
+    "name": "light-alarm.png",
+    "route": "/alarm",
+    "waitFor": "告警列表"
+  },
+  {
+    "name": "light-alarm-rules.png",
+    "route": "/alarm/rules",
+    "waitFor": "告警规则配置"
+  },
+  {
+    "name": "light-devices.png",
+    "route": "/basic-data/devices",
+    "waitFor": "设备台账"
+  },
+  {
+    "name": "light-analog.png",
+    "route": "/basic-data/analog",
+    "waitFor": "模拟量映射"
+  },
+  {
+    "name": "light-rbac.png",
+    "route": "/basic-data/permissions",
+    "waitFor": "权限控制"
+  },
+  {
+    "name": "light-om.png",
+    "route": "/om",
+    "waitFor": "运维沙盘",
+    "action": "simulate"
+  },
+  {
+    "name": "light-login.png",
+    "route": "/login",
+    "waitFor": "欢迎回来"
+  }
+]

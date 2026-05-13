@@ -1,0 +1,577 @@
+openapi: 3.0.3
+info:
+  title: 电池健康管理平台 API
+  description: 面向电化学储能电站的全生命周期电池健康管理 SaaS 平台 RESTful API 规范
+  version: 1.0.0
+  contact:
+    name: Battery Health Platform Team
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: 开发环境
+  - url: https://crm.thny.sg/api/v1
+    description: 生产环境
+
+security:
+  - BearerAuth: []
+
+tags:
+  - name: 认证
+    description: JWT 登录/登出/刷新
+  - name: 驾驶舱
+    description: Dashboard 概览与实时工况
+  - name: 问诊室
+    description: 电池健康评估与下钻分析
+  - name: 告警
+    description: 告警事件与规则管理
+  - name: 设备
+    description: 设备拓扑 CRUD 与量测映射
+  - name: 运维
+    description: 运维沙盘模拟
+  - name: 账单日志
+    description: 电费账单与系统日志
+
+paths:
+  /auth/login:
+    post:
+      tags: [认证]
+      summary: 用户登录
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username:
+                  type: string
+                  example: admin
+                password:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  refreshToken:
+                    type: string
+                  expiresIn:
+                    type: integer
+        '401':
+          description: 用户名或密码错误
+
+  /auth/refresh:
+    post:
+      tags: [认证]
+      summary: 刷新 Token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refreshToken]
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        '200':
+          description: 刷新成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  expiresIn:
+                    type: integer
+
+  /auth/logout:
+    post:
+      tags: [认证]
+      summary: 用户登出
+      responses:
+        '200':
+          description: 登出成功
+
+  /dashboard/overview:
+    get:
+      tags: [驾驶舱]
+      summary: 获取驾驶舱概览数据
+      parameters:
+        - name: energyUnitId
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 概览数据
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardOverview'
+
+  /dashboard/realtime/clusters:
+    get:
+      tags: [驾驶舱]
+      summary: 获取实时簇数据
+      parameters:
+        - name: energyUnitId
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 簇实时数据列表
+
+  /clinic/assessment-list:
+    post:
+      tags: [问诊室]
+      summary: 获取多维评估列表
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                deviceId:
+                  type: string
+                level:
+                  type: string
+                  enum: [station, unit, cluster, cell]
+                scoreRanges:
+                  type: object
+                  properties:
+                    sohMin:
+                      type: number
+                    sohMax:
+                      type: number
+                    consistencyMin:
+                      type: number
+                    consistencyMax:
+                      type: number
+      responses:
+        '200':
+          description: 评估列表
+
+  /clinic/cell/{cellId}/endpoint-analysis:
+    get:
+      tags: [问诊室]
+      summary: 单体下钻端点分析
+      parameters:
+        - name: cellId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [CHARGE, DISCHARGE]
+      responses:
+        '200':
+          description: 端点分析数据
+
+  /alarm/events:
+    get:
+      tags: [告警]
+      summary: 获取告警事件列表
+      parameters:
+        - name: severity
+          in: query
+          schema:
+            type: string
+            enum: [high, medium, low]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [UNACK, ACKED, RESOLVED]
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: 告警事件分页列表
+
+  /alarm/events/{eventId}/acknowledge:
+    put:
+      tags: [告警]
+      summary: 确认告警
+      parameters:
+        - name: eventId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 确认成功
+
+  /alarm/rules:
+    get:
+      tags: [告警]
+      summary: 获取告警规则列表
+      responses:
+        '200':
+          description: 告警规则列表
+    post:
+      tags: [告警]
+      summary: 创建告警规则
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlarmRuleCreate'
+      responses:
+        '201':
+          description: 创建成功
+
+  /alarm/rules/{ruleId}:
+    put:
+      tags: [告警]
+      summary: 更新告警规则
+      parameters:
+        - name: ruleId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlarmRuleCreate'
+      responses:
+        '200':
+          description: 更新成功
+
+  /devices/stations:
+    get:
+      tags: [设备]
+      summary: 获取电站列表
+      responses:
+        '200':
+          description: 电站列表
+    post:
+      tags: [设备]
+      summary: 创建电站
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, location, capacity]
+              properties:
+                name:
+                  type: string
+                location:
+                  type: string
+                capacity:
+                  type: number
+      responses:
+        '201':
+          description: 创建成功
+
+  /devices/tree:
+    get:
+      tags: [设备]
+      summary: 获取级联拓扑树
+      parameters:
+        - name: stationId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 拓扑树数据
+
+  /devices/units:
+    post:
+      tags: [设备]
+      summary: 创建储能单元
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [stationId, name]
+              properties:
+                stationId:
+                  type: string
+                name:
+                  type: string
+      responses:
+        '201':
+          description: 创建成功
+
+  /devices/clusters:
+    post:
+      tags: [设备]
+      summary: 创建电池簇
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [unitId, name]
+              properties:
+                unitId:
+                  type: string
+                name:
+                  type: string
+      responses:
+        '201':
+          description: 创建成功
+
+  /devices/analogs:
+    get:
+      tags: [设备]
+      summary: 获取量测映射配置
+      parameters:
+        - name: stationId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Analog 映射列表
+
+  /devices/analogs/{analogId}:
+    put:
+      tags: [设备]
+      summary: 更新量测映射
+      parameters:
+        - name: analogId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                analogCode:
+                  type: string
+                cellId:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '200':
+          description: 更新成功
+
+  /om/simulate-plan:
+    post:
+      tags: [运维]
+      summary: 运维沙盘模拟
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [energyUnitId]
+              properties:
+                energyUnitId:
+                  type: string
+                replacePackCount:
+                  type: integer
+                  maximum: 20
+                capacityGradingCount:
+                  type: integer
+                  maximum: 100
+      responses:
+        '200':
+          description: 模拟结果
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OmSimulationResult'
+
+  /bill/electricity:
+    get:
+      tags: [账单日志]
+      summary: 电费账单查询
+      parameters:
+        - name: stationId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: month
+          in: query
+          schema:
+            type: string
+            pattern: '^\\d{6}$'
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+      responses:
+        '200':
+          description: 账单分页列表
+
+  /system/logs:
+    get:
+      tags: [账单日志]
+      summary: 系统日志查询
+      parameters:
+        - name: action
+          in: query
+          schema:
+            type: string
+            enum: [login, config, alarm]
+        - name: startTime
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: endTime
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+      responses:
+        '200':
+          description: 日志分页列表
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    DashboardOverview:
+      type: object
+      properties:
+        totalCapacity:
+          type: number
+          description: 总容量 (kWh)
+        totalSoh:
+          type: number
+          description: 平均 SOH (%)
+        dailyCharge:
+          type: number
+          description: 日充电量 (kWh)
+        dailyDischarge:
+          type: number
+          description: 日放电量 (kWh)
+        alarmCount:
+          type: object
+          properties:
+            high:
+              type: integer
+            medium:
+              type: integer
+            low:
+              type: integer
+        pcsEfficiency:
+          type: number
+          description: PCS 效率 (%)
+        revenueToday:
+          type: number
+          description: 今日收益 (元)
+        forecastRevenueMonth:
+          type: number
+          description: 预测月收益 (元)
+        lastUpdateTime:
+          type: string
+          format: date-time
+
+    AlarmRuleCreate:
+      type: object
+      required: [name, condition, severity]
+      properties:
+        name:
+          type: string
+        condition:
+          type: string
+          description: 规则条件表达式
+        severity:
+          type: string
+          enum: [high, medium, low]
+        notifyType:
+          type: string
+          enum: [websocket, email, sms]
+        enabled:
+          type: boolean
+          default: true
+
+    OmSimulationResult:
+      type: object
+      properties:
+        estimatedCost:
+          type: number
+          description: 总成本 (元)
+        estimatedSohImprovement:
+          type: number
+          description: SOH 提升百分比
+        estimatedDuration:
+          type: string
+          description: 预计执行时长
+        riskLevel:
+          type: string
+          description: 风险等级
+        recommendation:
+          type: string
+          description: 方案建议
+        steps:
+          type: array
+          items:
+            type: string
+          description: 执行步骤
+        mappings:
+          type: array
+          items:
+            type: object
+            properties:
+              targetPosition:
+                type: string
+              insertCellId:
+                type: string
+              beforeSoh:
+                type: number
+              afterSoh:
+                type: number
+              expectedSohGain:
+                type: number
